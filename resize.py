@@ -78,5 +78,5 @@ height_entry.config(state='disable')
 resize_button = tk.Button(root, text="Resize", command=resize_window)
 resize_button.grid(row=4, column=0, columnspan=2)
 
-offset_list = [{'Emulator':[42,35]}]
+offset_list = [{'None':[0,0],'Emulator':[42,35],'Genshin':[]}]
 root.mainloop()
