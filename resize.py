@@ -1,5 +1,5 @@
 import win32gui
-
+from time import sleep
 def winEnumHandler( hwnd, ctx ):
     if win32gui.IsWindowVisible( hwnd ):
         print ( hex( hwnd ), win32gui.GetWindowText( hwnd ) )
@@ -24,38 +24,36 @@ def get_inner_windows(whndl):
         win32gui.EnumChildWindows(whndl, callback, hwnds)
         return hwnds
 
-def resize_child_window(wnd:int,w:int,h:int,child:int):
-    if w == 1920 and h == 1080:
-        w = 1962
-        h = 1115
-    elif w == 1600 and h == 900:
-        w = 1642
-        h = 935
-    elif w == 1280 and h == 720:
-        w = 1322
-        h = 755
+def resize_child_window(wnd:int,w:int,h:int,is_emulator:bool = True):
+    if is_emulator:
+        x_off = 42
+        y_off = 35
     else:
-        print("Unsupported resolution.\nTry (1920x1080),(1600x900),(1280,720)")
-        exit()
+        x_off = 6
+        y_off = 29
+    w = w+x_off
+    h = h+y_off
 
     x0, y0, _x1, _y1 = win32gui.GetWindowRect(wnd)
 
     win32gui.MoveWindow(wnd,x0,y0,w,h,True)
     win32gui.UpdateWindow(wnd)
-    win32gui.BringWindowToTop(child)
-
+    print("Done")
+    sleep(3)
         
 
 
 
 def main():
+    print("Make sure that the right-hand menu is fully expanded before starting. You may collapse it afterwards.")
     #User input
-    wnd = input("What window are you looking for? -> ")
-
+    wnd = input("What instance do you want re-sized? for? Type in the exact name -> ")
+    is_emu = True
     hwnd = win32gui.FindWindow(None,wnd)
     
     if not hwnd:
-        print("The '{}' window doesn't exist... Sorry.".format(wnd))
+        print("The '{}' window doesn't exist... Try typing the name of your instance in exactly as it appears.".format(wnd))
+        
         exit()
     
 
@@ -64,11 +62,17 @@ def main():
 
     inner_render = windows.get("RenderWindow",None)
     if not inner_render:
-        print("The window has no render child... Sorry.")
-        exit()
+        cont = input("The window has no render child... Do you want to continue? y/n -> ")
+        if cont != 'y':
+            print("Exiting.")
+            sleep(3)
+            exit()
+        else:
+            print("Continuing.")
+            is_emu = False
     w = int(input("What width do you want to resize to? -> "))
     h = int(input("What height do you want to resize to? -> "))
-    resize_child_window(hwnd,w,h,inner_render)
+    resize_child_window(hwnd,w,h,is_emulator=is_emu)
     
     print("wow arigato")
 
