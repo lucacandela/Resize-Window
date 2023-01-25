@@ -1,6 +1,6 @@
 # Resize Window
  
- Resize any window to a specified, ratio-bound width & height. Comes with a clean gui for a nice user-experience.
+Resize any window to a specified, ratio-bound width & height. Comes with a clean gui for a nice user-experience.
 ---
 - [x] Resize Functionality
 - [x] GUI
