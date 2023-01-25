@@ -1,12 +1,32 @@
-import tkinter as tk
-import win32gui
+from tkinter import *
+from tkinter import ttk
+from tkinter.ttk import Label, Combobox
 from tkinter import messagebox
-import sv_ttk
+import win32gui
 from math import trunc
+import sv_ttk
 
-root = tk.Tk()
+root = Tk()
+root.geometry('600x400')
 root.title("Window Resizer")
-window_var = tk.StringVar()
+root.minsize(width=300,height=300)
+root.maxsize(width=600,height=520)
+
+style = ttk.Style()
+
+style.configure("TLabel", width=20, anchor=W, justify=LEFT, padding=2)
+style.configure("TCombobox",width=20, anchor=W, justify=LEFT, readonlybackgroundcolor='#303030')
+
+window_var = StringVar()
+
+root.columnconfigure(0,weight=1)
+root.columnconfigure(1,weight=1)
+root.columnconfigure(2,weight=1)
+root.rowconfigure(0,weight=1)
+root.rowconfigure(1,weight=1)
+root.rowconfigure(2,weight=1)
+root.rowconfigure(3,weight=1)
+root.rowconfigure(4,weight=1)
 
 def resize_window():
     if not window_var.get():
@@ -49,28 +69,30 @@ def enum_windows_callback(hwnd, lparam):
         windows.append((hwnd, title))
 win32gui.EnumWindows(enum_windows_callback, None)
 # Create a variable to store the selected window
-window_var = tk.StringVar(value=windows[0][1])
+window_var = StringVar(value=windows[0][1])
 
-window_label = tk.Label(root, text="Window:")
+window_label = Label(root, text="Window:",style="TLabel")
 window_label.grid(row=0, column=0)
 
 # Create a dropdown list with all open windows
-window_list = tk.OptionMenu(root, window_var, *[text for _, text in windows])
-window_list.grid(row=0, column=1, columnspan=2)
+window_list = Combobox(root, textvariable=window_var, values=[text for _, text in windows], style="TCombobox",state='readonly')
+window_list.grid(row=0, column=1, columnspan=1,sticky='w')
 
 
-ratio_label = tk.Label(root, text="Ratio:")
+ratio_label = Label(root, text="Ratio:",style="TLabel")
 ratio_label.grid(row=1, column=0)
+
 # Create a variable to store the selected ratio
 ratios = ["16:9","4:3","9:16"]
-ratio_var = tk.StringVar(value=ratios[0])
+ratio_var = StringVar(value=ratios[0])
 ratio_var.trace("w", lambda name, index, mode, ratio_var=ratio_var: getRatioLockedHeight())
-ratio_list = tk.OptionMenu(root, ratio_var, *[text for text in ratios])
-ratio_list.grid(row=1,column=1,columnspan=2)
+ratio_list = Combobox(root, textvariable=ratio_var, values=[text for text in ratios], style="TCombobox", state='readonly')
+ratio_list.grid(row=1,column=1,columnspan=1,sticky='w')
 
 
 
-width_label = tk.Label(root, text="Width:")
+
+width_label = Label(root, text="Width:",style="TLabel")
 width_label.grid(row=2, column=0)
 
 def getRatioLockedHeight():
@@ -85,35 +107,36 @@ def getRatioLockedHeight():
     else:
         height_entry.delete(0,'end')
         height_entry.insert(0,"Width is not an int") 
-    height_entry.config(state='readonly',fg='black')
+    height_entry.config(state='readonly',fg='white')
     
 
-width_var = tk.StringVar()
-width_entry = tk.Entry(root, textvariable=width_var)
-width_entry.grid(row=2, column=1)
+width_var = StringVar()
+width_entry = Entry(root, textvariable=width_var)
+width_entry.grid(row=2, column=1,sticky='w')
+width_entry.config(justify="left",readonlybackground='#303030')
 width_var.trace_add("write", lambda name, index, mode, width_var=width_var: getRatioLockedHeight())
 
-height_label = tk.Label(root, text="Height:")
+height_label = Label(root, text="Height:",style="TLabel")
 height_label.grid(row=3, column=0)
 
 
 height_var = 0
-height_entry = tk.Entry(root)
-height_entry.grid(row=3, column=1)
-height_entry.config(state='readonly',fg='black')
+height_entry = Entry(root)
+height_entry.grid(row=3, column=1,sticky='w')
+height_entry.config(state='readonly',fg='white',justify="left",readonlybackground='#303030')
 
 
-offset_label = tk.Label(root,text="Offsets:")
+offset_label = Label(root,text="Offsets:", style="TLabel")
 offset_label.grid(row=4,column=0)
 
 #create a varialbe to store the offset list
 offsets = [('None',[0,0]),('Emulator',[42,35]),('Genshin',[6,29])]
-offset_var = tk.StringVar(value=offsets[0][0])
-offset_list = tk.OptionMenu(root, offset_var, *[tu for tu, text in offsets])
-offset_list.grid(row=4, column=1,columnspan=2)
+offset_var = StringVar(value=offsets[0][0])
+offset_list = Combobox(root, textvariable=offset_var, values=[tu for tu, _ in offsets], style="TCombobox", state='readonly')
+offset_list.grid(row=4, column=1,columnspan=1,sticky='w')
 
-resize_button = tk.Button(root, text="Resize", command=resize_window)
-resize_button.grid(row=6, column=0, columnspan=2)
+resize_button = Button(root, text="Resize", command=resize_window)
+resize_button.grid(row=6, column=0, columnspan=2,pady=5)
 
 
 
