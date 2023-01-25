@@ -47,7 +47,6 @@ def resize_window():
 
     hwnd = win32gui.FindWindow(None, window_var.get())
     if hwnd:
-        left, top, _, _ = win32gui.GetWindowRect(hwnd)
         offset_selection = offset_var.get()
         for o in offsets:
             if o[0] == offset_selection:
@@ -55,7 +54,7 @@ def resize_window():
                 height = height + o[1][1]
                 break
 
-        win32gui.MoveWindow(hwnd, left, top, width, height, True)
+        win32gui.MoveWindow(hwnd, 0, 0, width, height, True)
     else:
         messagebox.showerror("Error", "The selected window was not found.")
 
