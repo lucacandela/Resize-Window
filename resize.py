@@ -4,6 +4,7 @@ from tkinter.ttk import Label, Combobox
 from tkinter import messagebox
 import win32gui
 from math import trunc
+from PIL import Image, ImageTk
 import sv_ttk
 
 root = Tk()
@@ -16,12 +17,13 @@ style = ttk.Style()
 
 style.configure("TLabel", width=20, anchor=W, justify=LEFT, padding=2)
 style.configure("TCombobox",width=20, anchor=W, justify=LEFT, readonlybackgroundcolor='#303030')
+style.configure("Refresh.TButton", height=20, width=20, background='transparent', highlightbackground=root["bg"],foreground="transparent")
 
 window_var = StringVar()
 
 root.columnconfigure(0,weight=1)
 root.columnconfigure(1,weight=1)
-root.columnconfigure(2,weight=1)
+root.columnconfigure(2,weight=3)
 root.rowconfigure(0,weight=1)
 root.rowconfigure(1,weight=1)
 root.rowconfigure(2,weight=1)
@@ -47,6 +49,7 @@ def resize_window():
 
     hwnd = win32gui.FindWindow(None, window_var.get())
     if hwnd:
+        left, top, _, _ = win32gui.GetWindowRect(hwnd)
         offset_selection = offset_var.get()
         for o in offsets:
             if o[0] == offset_selection:
@@ -54,7 +57,7 @@ def resize_window():
                 height = height + o[1][1]
                 break
 
-        win32gui.MoveWindow(hwnd, 0, 0, width, height, True)
+        win32gui.MoveWindow(hwnd, left, top, width, height, True)
     else:
         messagebox.showerror("Error", "The selected window was not found.")
 
@@ -68,6 +71,9 @@ def enum_windows_callback(hwnd, lparam):
         windows.append((hwnd, title))
 win32gui.EnumWindows(enum_windows_callback, None)
 # Create a variable to store the selected window
+
+
+
 window_var = StringVar(value=windows[0][1])
 
 window_label = Label(root, text="Window:",style="TLabel")
@@ -77,6 +83,15 @@ window_label.grid(row=0, column=0)
 window_list = Combobox(root, textvariable=window_var, values=[text for _, text in windows], style="TCombobox",state='readonly')
 window_list.grid(row=0, column=1, columnspan=1,sticky='w')
 
+def refresh_windows_list():
+    global windows
+    windows = []
+    win32gui.EnumWindows(enum_windows_callback, None)
+    window_list.config(values=[text for _, text in windows])
+refresh_img = Image.open("images\\refresh-circle-sharp.png")
+refresh_img = ImageTk.PhotoImage(refresh_img.resize((20, 20), Image.LANCZOS))
+refresh_button = ttk.Button(root, image=refresh_img, command=refresh_windows_list,style="Refresh.TButton")
+refresh_button.grid(row=0, column=2,sticky=W)
 
 ratio_label = Label(root, text="Ratio:",style="TLabel")
 ratio_label.grid(row=1, column=0)
@@ -86,7 +101,7 @@ ratios = ["16:9","4:3","9:16"]
 ratio_var = StringVar(value=ratios[0])
 ratio_var.trace("w", lambda name, index, mode, ratio_var=ratio_var: getRatioLockedHeight())
 ratio_list = Combobox(root, textvariable=ratio_var, values=[text for text in ratios], style="TCombobox", state='readonly')
-ratio_list.grid(row=1,column=1,columnspan=1,sticky='w')
+ratio_list.grid(row=1,column=1,columnspan=1,sticky=W)
 
 
 
